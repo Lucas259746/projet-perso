@@ -1,48 +1,23 @@
 const express = require('express');
 const app = express();
 
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
-  next();
-});
+const corsMiddleware = require('./middlewares/cors');
+const loggerMiddleware = require('./middlewares/logger');
 
-app.use((req, res, next) => {
-  console.log('Requête reçue !');
-  next();
-});
+const userRoutes = require('./routes/user.routes');
 
+// middlewares globaux
+app.use(corsMiddleware);
+app.use(loggerMiddleware);
 
-app.use((req, res, next) => {
-  res.status(200);
-  next();
-});
+app.use(express.json());
 
+// routes
+app.use('/api/user', userRoutes);
 
-app.use( (req, res, next) => {
-  const users = [
-    {
-      _id: 'oeihfzeoi',
-      firstName: 'laura',
-      lastName: 'dupont',
-      email: 'tarteaucafe@example.com',
-      userId: 'qsomihvqios',
-    },
-    {
-      _id: 'tralala02',
-      firstName: 'timothée',
-      lastName: 'kiwi',
-      email: 'tartineaukiwi@example.com',
-      userId: 'qsomihvqios',
-    },
-  ];
-  res.json(users);$
-  next();
-});
-
-app.use((req, res, next) => {
-  console.log('Réponse envoyée avec succès !');
+// middleware 404
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route non trouvée' });
 });
 
 module.exports = app;
