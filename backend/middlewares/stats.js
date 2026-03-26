@@ -6,6 +6,7 @@ module.exports = (user) => {
     relics: user.relicCount,
     books: user.bookCount,
     music: user.musicCount,
-    simulatedUniverse: user.simulatedUniverse
+    // On extrait la valeur numérique si possible
+    simulatedUniverse: user.simulatedUniverse?.world || 0 
   };
 };

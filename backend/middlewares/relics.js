@@ -1,15 +1,15 @@
 module.exports = (user) => {
-  return user.starfaringCompanions.map(c => ({
-    character: c.characterData?.name?.get?.() || "Unknown",
-
-    relics: c.relics?.map(r => ({
-      name: r.relicData?.name?.get?.() || "Unknown",
+  const companions = user.starfaringCompanions || [];
+  
+  return companions.map(c => ({
+    character: c.characterData?.name || "Unknown",
+    relics: (c.relics || []).map(r => ({
+      name: r.relicData?.name || "Unknown",
       level: r.level,
-
       mainStat: {
-        name: r.mainAffix?.name?.get?.() || "Unknown",
+        name: r.mainAffix?.name || "Unknown",
         value: r.mainAffix?.value || 0
       }
-    })) || []
+    }))
   }));
 };

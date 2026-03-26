@@ -1,10 +1,12 @@
 module.exports = (user) => {
   const cones = [];
+  // Le SDK place les personnages dans starfaringCompanions
+  const companions = user.starfaringCompanions || [];
 
-  user.starfaringCompanions.forEach(c => {
+  companions.forEach(c => {
     if (c.lightCone) {
       cones.push({
-        name: c.lightCone.lightConeData.name.get(),
+        name: c.lightCone.lightConeData.name, // Plus de .get() ici
         level: c.lightCone.level,
         ascension: c.lightCone.ascension,
         superimposition: c.lightCone.superimposition,

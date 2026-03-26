@@ -1,6 +1,7 @@
 module.exports = (user) => {
   return user.starfaringCompanions.map(c => ({
     id: c.characterData?.id || null,
+
     name: c.characterData?.name?.get?.() || "Unknown",
 
     level: c.level,
