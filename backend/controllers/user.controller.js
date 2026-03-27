@@ -5,50 +5,34 @@ const getStarfaringCompanions = require('../middlewares/starfaringCompanions');
 const getLightCones = require('../middlewares/lightCones');
 const getRelics = require('../middlewares/relics');
 const getStats = require('../middlewares/stats');
+ 
 
-const client = new StarRail();
 
-/**
- * Fonction de nettoyage pour supprimer les références circulaires
- * et convertir les BigInt en String (souvent requis pour Star Rail)
- */
-const cleanForJSON = (obj) => {
-    return JSON.parse(
-        JSON.stringify(obj, (key, value) => {
-            // Empêche de sérialiser le client ou les timers s'ils traînent
-            if (key === 'client' || key === '_idleNext' || key === '_idlePrev') return undefined;
-            // Gère les grands nombres d'ID de Star Rail
-            if (typeof value === 'bigint') return value.toString();
-            return value;
-        })
-    );
-};
+const client = new StarRail({ language: "en" });
 
 exports.fetchUser = async (req, res) => {
   try {
-    const uid = req.params.uid;
+    const { uid } = req.params;
+    
+    // Validation basique de l'UID
+    if (!uid || isNaN(uid)) {
+      return res.status(400).json({ message: "UID invalide" });
+    }
 
-    // Appel au SDK
     const user = await client.fetchUser(uid);
 
-    // Construction de votre objet de réponse via vos middlewares
     const responseData = {
-      user: getUserData(user),
+      player: getUserData(user),
       stats: getStats(user),
-      starfaringCompanions: getStarfaringCompanions(user),
-      lightCones: getLightCones(user),
-      relics: getRelics(user)
+      characters: getStarfaringCompanions(user), 
     };
 
-    // NETTOYAGE CRITIQUE avant l'envoi
-    const safeData = cleanForJSON(responseData);
-
-    res.json(safeData);
+    res.json(cleanForJSON(responseData));
 
   } catch (error) {
-    console.error("Détails de l'erreur:", error);
-    res.status(500).json({
-      message: "Erreur API",
+    // Si l'utilisateur n'existe pas ou profil privé
+    res.status(404).json({
+      message: "Utilisateur non trouvé ou profil privé",
       error: error.message
     });
   }

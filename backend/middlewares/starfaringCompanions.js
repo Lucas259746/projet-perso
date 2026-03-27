@@ -1,18 +1,6 @@
+const { CharacterModel } = require('../models/starRailParser');
+
 module.exports = (user) => {
-  return user.starfaringCompanions.map(c => ({
-    id: c.characterData?.id || null,
-
-    name: c.characterData?.name?.get?.() || "Unknown",
-
-    level: c.level,
-    ascension: c.ascension,
-    eidolons: c.eidolons,
-
-    lightCone: c.lightCone
-      ? {
-          name: c.lightCone.lightConeData?.name?.get?.() || "Unknown",
-          level: c.lightCone.level
-        }
-      : null
-  }));
+  // Le SDK retourne souvent les personnages dans 'starfaringCompanions'
+  return (user.starfaringCompanions || []).map(c => new CharacterModel(c));
 };

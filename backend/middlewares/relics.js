@@ -1,15 +1,8 @@
+const { RelicModel } = require('../models/starRailParser');
+
 module.exports = (user) => {
-  const companions = user.starfaringCompanions || [];
-  
-  return companions.map(c => ({
-    character: c.characterData?.name || "Unknown",
-    relics: (c.relics || []).map(r => ({
-      name: r.relicData?.name || "Unknown",
-      level: r.level,
-      mainStat: {
-        name: r.mainAffix?.name || "Unknown",
-        value: r.mainAffix?.value || 0
-      }
-    }))
+  return (user.starfaringCompanions || []).map(c => ({
+    characterName: c.characterData?.name?.get?.(),
+    relics: (c.relics || []).map(r => new RelicModel(r))
   }));
 };
