@@ -3,7 +3,6 @@ const { StarRail } = require("starrail.js");
 const getUserData = require('../middlewares/user');
 const getStarfaringCompanions = require('../middlewares/starfaringCompanions');
 const getLightCones = require('../middlewares/lightCones');
-const getRelics = require('../middlewares/relics');
 const getStats = require('../middlewares/stats');
  
 
@@ -26,13 +25,13 @@ exports.fetchUser = async (req, res) => {
       stats: getStats(user),
       StarfaringCompanions: getStarfaringCompanions(user), 
     };
-    
-    res.json(cleanForJSON(responseData));
+
+    res.json(responseData);
 
   } catch (error) {
-    // Si l'utilisateur n'existe pas ou profil privé
+
     res.status(404).json({
-      message: "Utilisateur non trouvé ou profil privé",
+      message: "Utilisateur non trouvé",
       error: error.message
     });
   }
