@@ -26,10 +26,8 @@ exports.fetchUser = async (req, res) => {
       stats: getStats(user),
       StarfaringCompanions: getStarfaringCompanions(user), 
     };
-    console.log(getUserData(user))
-    console.log(getStats(user))
-    console.log(getStarfaringCompanions(user))
-    //res.json(cleanForJSON(responseData));
+    
+    res.json(cleanForJSON(responseData));
 
   } catch (error) {
     // Si l'utilisateur n'existe pas ou profil privé
