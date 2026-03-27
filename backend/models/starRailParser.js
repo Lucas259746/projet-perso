@@ -1,64 +1,68 @@
-// models/StarRailParser.js
-
-class CharacterModel {
-  constructor(c) {
-    this.id = c.characterData?.id;
-    this.name = c.characterData?.name?.get?.() || "Unknown";
-    this.rarity = c.characterData?.rarity;
-    this.level = c.level;
-    this.promotion = c.ascension;
-    this.rank = c.eidolons?.length || 0; // Eidolons débloqués
-    
-    // Éléments et Chemins
-    this.element = {
-      id: c.characterData?.element?.id,
-      name: c.characterData?.element?.name?.get?.()
-    };
-    this.path = {
-      id: c.characterData?.path?.id,
-      name: c.characterData?.path?.name?.get?.()
-    };
-
-    // Extraction des Traces (Skills)
-    this.skills = (c.skills || []).map(s => ({
-      id: s.id,
-      name: s.skillData?.name?.get?.(),
-      level: s.level,
-      maxLevel: s.skillData?.maxLevel,
-      type: s.skillData?.typeText?.get?.()
-    }));
-
-    this.lightCone = c.lightCone ? new LightConeModel(c.lightCone) : null;
-    this.relics = (c.relics || []).map(r => new RelicModel(r));
-  }
-}
-
 class LightConeModel {
   constructor(lc) {
+    if (!lc) return null;
     this.id = lc.lightConeData?.id;
     this.name = lc.lightConeData?.name?.get?.() || "Unknown";
     this.level = lc.level;
-    this.rank = lc.superimposition;
-    this.rarity = lc.lightConeData?.rarity;
-    this.promotion = lc.ascension;
+    this.ascension = lc.ascension;
+    this.superimposition = lc.superimposition?.level || 1;
+    this.rarity = lc.lightConeData?.stars;
   }
 }
 
 class RelicModel {
   constructor(r) {
+    if (!r) return null;
     this.id = r.relicData?.id;
     this.name = r.relicData?.name?.get?.() || "Unknown";
     this.level = r.level;
-    this.rarity = r.relicData?.rarity;
+    this.rarity = r.relicData?.stars;
+    
+    // Statistique principale
     this.mainStat = {
-      type: r.mainAffix?.type,
-      name: r.mainAffix?.name?.get?.(),
+      name: r.mainAffix?.type?.name?.get?.() || "Unknown",
       value: r.mainAffix?.value
     };
+
+    // Statistiques secondaires (subAffixes)
     this.subStats = (r.subAffixes || []).map(s => ({
-      name: s.name?.get?.(),
+      name: s.type?.name?.get?.() || "Unknown",
       value: s.value,
-      rolls: s.rolls
+      count: s.rolls // Nombre d'améliorations sur cette stat
+    }));
+  }
+}
+
+class CharacterModel {
+  constructor(c) {
+    this.id = c.characterData?.id;
+    this.name = c.characterData?.name?.get?.() || "Unknown";
+    this.level = c.level;
+    this.rarity = c.characterData?.stars;
+    this.eidolons = c.eidolons;
+    this.ascension = c.ascension;
+
+    // Combat & Type
+    this.path = c.characterData?.path?.name?.get?.();
+    this.element = c.characterData?.combatType?.name?.get?.();
+
+    // Équipement
+    this.lightCone = c.lightCone ? new LightConeModel(c.lightCone) : null;
+    this.relics = (c.relics || []).map(r => new RelicModel(r));
+
+    // Traces (Skill Tree) - On filtre pour ne garder que les activées
+    this.traces = (c.skillTreeNodes || [])
+      .filter(node => node.level > 0)
+      .map(node => ({
+        id: node.id,
+        level: node.level
+      }));
+
+    // Statistiques finales (Overall Stats)
+    // On extrait les stats clés : HP, ATK, DEF, SPD, CRIT Rate, CRIT DMG
+    this.finalStats = (c.stats?.overallStats?.values || []).map(s => ({
+      name: s.type?.name?.get?.(),
+      value: s.value
     }));
   }
 }
